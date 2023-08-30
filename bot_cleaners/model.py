@@ -6,7 +6,6 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-
 class Celda(Agent):
     def __init__(self, unique_id, model, suciedad: bool = False):
         super().__init__(unique_id, model)
@@ -133,6 +132,8 @@ class Habitacion(Model):
                  porc_muebles: float = 0.1,
                  modo_pos_inicial: str = 'Fija',
                  ):
+        
+        self.robos = []
 
         self.num_agentes = num_agentes
         self.porc_celdas_sucias = porc_celdas_sucias
@@ -212,6 +213,7 @@ class Habitacion(Model):
             robot = RobotLimpieza(id, self)
             self.grid.place_agent(robot, pos_inicial_robots[id])
             self.schedule.add(robot)
+            self.robos.append(robot)
 
         self.datacollector = DataCollector(
             model_reporters={"Grid": get_grid, "Cargas": get_cargas,
@@ -219,6 +221,21 @@ class Habitacion(Model):
         )
         for i in posiciones_estaciones:
             self.posiciones_disponibles.append(i)
+
+    '''
+    def sendPos(self):
+        posDICT = []
+        for rob in self.robos:
+            data = {
+                "ID": rob.unique_id,
+                "pos": rob.pos,
+                "Carga": rob.carga,
+                "Cargando": rob.cargando
+            }
+            posDICT.append(data)
+            print(data)
+        return json.dumps(posDICT)
+        '''
 
     def step(self):
         self.datacollector.collect(self)
